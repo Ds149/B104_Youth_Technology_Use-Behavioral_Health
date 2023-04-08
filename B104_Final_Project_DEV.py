@@ -1,4 +1,4 @@
-##Final Project V1.0
+##Final Project V2.0
 #Class: CSCI/ISAT B104 - Spring
 #Authors:
     #Scheer, Daniel
@@ -8,9 +8,7 @@ def main():
     
     #Import of assets
     import pandas as pd
-    import numpy as np
     import seaborn as sns
-    import matplotlib as mpl
     import matplotlib.pyplot as plt
     import scipy.stats as sp
     
@@ -22,30 +20,42 @@ def main():
     #--------------------------------------------------- Settings -----------------------------------------------------#
     #Menu Settings:
     #printing and indexing of graphical functions will be counted from left to right in menu loops:
-    show_functions = ['YRBSS - Heatmap - filtered questions.', 'YRBSS - Stacked Histogram - Y:count X:Q80 Hue:Q25', 
-                           'MTF - Plot-Type - 1', 'MTF - Plot-Type - 2', 'YRBS - Chi square - test', 'MTF - Chi square - test'] 
+    show_functions = ['YRBSS - Heatmap - filtered questions', 'YRBSS - Stacked Histogram - Y:count X:Q80 Hue:Q25', 
+                           'MTF - Heatmap - full datatset', 'MTF - Stacked Histogram - Y:count X:V7685 Hue:V7302', 'YRBS - Chi square - result', 'MTF - Chi square - result'] 
 
-    #name list for questions in dataset, used for most graphical functions: (Long form)
+    #------------------------------------------------- YRBS Settings --------------------------------------------------#
+    
+    #name list for questions in dataset: (Long form)
     yrbs_question_names = ['25. Sad or Hopeless','80. Computer Use (Screen Time)']
     
+    #Column names for heatmap xy index
     yrbs_col_names = ['Sad/hopeless', 'Screen time','Age', 'Sex' ,'Gender Identity', 'Sexual Partners', 'Race']
     
     #Index for anwser values in quesiton 80 - YRBS dataset
     q80_index = ['0 h/day', '<1 h/day', '1 h/day', '2 h/day', '3 h/day', '4 h/day', '>=5 h/day']
     
     #Index for anwser values in question 25 - YRBS dataset
-    q25_index = ['No', 'Yes']
+    q25_index = ['No','Yes']
     
-    #Index for anwser values for age column - YRBS dataset
-    yrbs_age_index = ['12 years old or younger', '13 year sold','14 years old','15 years old',
-                     '16 years old','17 years old','18 years old or older',]
+    #------------------------------------------------- MTF Settings ---------------------------------------------------#
+    #name list for questions in dataset: (Long form)
+    mtf_question_names = ['Taking all things together, how would you say things are these days?', 'About how many hours on an average DAY do you spend on social networking sites? ']
+    
+    #Column names for heatmap xy index
+    mtf_col_names = ['Happiness lately', 'Hours/day social media', 'Sex', 'Race']
+    
+    #Index for anwser values in quesiton V7685 - MTF dataset
+    v7685_index = ['0 h/day', '<1 h/day', '1-2 h/day', '3-4 h/day', '5-6 h/day', '7-8 h/day', '9+ h/day']
+    
+    #Index for anwser values in quesiton V7302 - MTF dataset
+    v7302_index = ['Verry happy', 'Pretty happy', 'Not happy']
     
     #------------------------------------------------------------------------------------------------------------------#
     #YRBSS dataset functions
        
    
     #YRBS stacked histogram         
-    def yrbs_stacked_histogram(col_names, q80_index, q25_index, yrbs_age_index):
+    def yrbs_stacked_histogram(col_names, q80_index, q25_index):
         
         #Set subplot size and res
         f, ax = plt.subplots(figsize = (12, 9), dpi = 300)    
@@ -54,35 +64,69 @@ def main():
         colors = {1:'#38AFC9', 2:'#081A40'}
         
         #Plot histogram using y = count x = question 80, hue = question 25
-        sns.histplot(data = yrbs_dataset, stat = "count", multiple = "stack", kde = False , bins = 7, palette = colors, hue = yrbs_dataset.q25, x = yrbs_dataset.q80, element = "bars", legend = True)
+        sns.histplot(data = yrbs_dataset, stat = "count", multiple = "stack", element = "bars", legend = True, kde = False , bins = 7, palette = colors, hue = yrbs_dataset.q25, x = yrbs_dataset.q80)
         
         #Set question name x axis + spacing of xtick lables
         ax.set(xlabel = col_names[1], xticks = ([1.4, 2.3, 3.15, 4, 4.8, 5.7, 6.6]), xticklabels = q80_index)
         
-        #set hue question name
+        #set hue question name and anwser index
         ax.legend(title=col_names[0],labels = q25_index)
         
+        #Plot and show graph
         ax.plot()
         plt.show()
-        
+     
+    #YRBS heatmap
     def yrbs_heatmap_full(yrbs_col_names):
-        
+        #Set figure size and res
         plt.figure(figsize=(12, 9), dpi = 300)
         
+        #Filter and make dataset readable for heatmap
         yrbs_filter = yrbs_dataset[['q25', 'q80', 'age', 'sex', 'q65', 'q66', 'race7']].corr()
         
+        #Create heatmap + set x&y lables
         sns.heatmap(data = yrbs_filter, fmt = '.1f', linewidths = 1, cmap='Blues', annot = True, xticklabels= yrbs_col_names, yticklabels= yrbs_col_names)
+        #Rotate names 30deg
         plt.xticks(rotation=30)
         plt.yticks(rotation=30)
         
+        #show plot
         plt.show()
         
         
     #------------------------------------------------------------------------------------------------------------------#
-    #MTF dataset functions    
+    #MTF dataset functions:
     
+    #MTF stacked histogram
+    def mtf_stacked_histogram(col_names, v7685_index, v7302_index):
+        
+        f, ax = plt.subplots(figsize = (12, 9), dpi = 300)
+        
+        colors = {1:'#38AFC9', 2:'#C4D0D7' ,3:'#081A40'}
+        
+        sns.histplot(data = mtf_dataset, stat = "count", multiple = "stack", element = "bars", legend = True, kde = False, bins = 7, palette = colors, hue = mtf_dataset.V7302, x = mtf_dataset.V7685)
+        
+        ax.set(xlabel = col_names[1], xticks = ([1.4, 2.3, 3.15, 4, 4.8, 5.7, 6.6]), xticklabels = v7685_index)
+        
+        ax.legend(title = col_names[0],labels = v7302_index)
+        
+        ax.plot()
+        plt.show()
     
-    
+    #MTF heatmap
+    def mtf_heatmap_full(mtf_col_names):
+        
+        plt.figure(figsize = (12, 9), dpi = 300)
+        
+        sns.heatmap(data = mtf_dataset.corr(), fmt = '.1f', linewidths = 1, cmap = 'Blues', annot = True, xticklabels = mtf_col_names, yticklabels = mtf_col_names)
+        
+        
+        plt.xticks(rotation=30)
+        plt.yticks(rotation=30)
+        
+        
+        plt.show()
+        
     #------------------------------------------------------------------------------------------------------------------#
     #Misc functions
     
@@ -148,17 +192,17 @@ def main():
             #elif to call menu option #2
             elif (user_input == 2):
                 print('Creating plot')
-                yrbs_stacked_histogram(yrbs_question_names, q80_index, q25_index, yrbs_age_index)
+                yrbs_stacked_histogram(yrbs_question_names, q80_index, q25_index)
                 
             #elif to call menu option #3
             elif (user_input == 3):
                 print('Creating plot')
-                
+                mtf_heatmap_full(mtf_col_names)
             
             #elif to call menu option #4
             elif (user_input == 4):
                 print('Creating plot')
-                #tbc
+                mtf_stacked_histogram(mtf_question_names, v7685_index, v7302_index)
                 
             #elif to call menu option #5
             elif (user_input == 5):
@@ -172,18 +216,10 @@ def main():
             
             #invalid input integer not in list
             else:
-                #print('\nThe entered value is invalid. Please enter the number of a plot:')
-                print('test')
+                print('\nThe entered value is invalid. Please enter the number of a plot:')
             
         except:
             print('\nThe entered value is invalid. Please enter the number of a plot:')
             
 
 main()
-
-##Verify chi squared 
-
-##Usefull links:
-    #https://python-course.eu/numerical-programming/creating-subplots-in-matplotlib.php #matplotlib subplots info
-    #https://dev.to/thalesbruno/subplotting-with-matplotlib-and-seaborn-5ei8 # more matplotlib subplot info
-    #https://datascience.stackexchange.com/questions/31746/how-to-include-labels-in-sns-heatmap #Seaborn change fontsize etc
