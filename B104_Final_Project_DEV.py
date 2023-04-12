@@ -16,12 +16,14 @@ def main():
     yrbs_dataset = pd.read_csv('Final_filter_YRBSS_dataset.csv', sep = ',')
     mtf_dataset = pd.read_csv('Final_filter_MTF_dataset.csv', sep = ',')
 
+    #sns.set(font_scale = 1.5)
     
     #--------------------------------------------------- Settings -----------------------------------------------------#
     #Menu Settings:
     #printing and indexing of graphical functions will be counted from left to right in menu loops:
     show_functions = ['YRBSS - Heatmap - filtered questions', 'YRBSS - Stacked Histogram - Y:count X:Q80 Hue:Q25', 
-                           'MTF - Heatmap - full datatset', 'MTF - Stacked Histogram - Y:count X:V7685 Hue:V7302', 'YRBS - Chi square - result', 'MTF - Chi square - result'] 
+                      'MTF - Heatmap - full datatset', 'MTF - Stacked Histogram - Y:count X:V7685 Hue:V7302', 
+                      'YRBS - Chi square - result', 'MTF - Chi square - result'] 
 
     #------------------------------------------------- YRBS Settings --------------------------------------------------#
     
@@ -39,7 +41,7 @@ def main():
     
     #------------------------------------------------- MTF Settings ---------------------------------------------------#
     #name list for questions in dataset: (Long form)
-    mtf_question_names = ['Taking all things together, how would you say things are these days?', 'About how many hours on an average DAY do you spend on social networking sites? ']
+    mtf_question_names = ['Taking all things together, \nhow would you say things are these days?', 'About how many hours on an average DAY do you spend on social networking sites? ']
     
     #Column names for heatmap xy index
     mtf_col_names = ['Happiness lately', 'Hours/day social media', 'Sex', 'Race']
@@ -72,6 +74,9 @@ def main():
         #set hue question name and anwser index
         ax.legend(title=col_names[0],labels = q25_index)
         
+        plt.setp(ax.get_legend().get_texts(), fontsize='22') 
+        plt.setp(ax.get_legend().get_title(), fontsize='25')
+        
         #Plot and show graph
         ax.plot()
         plt.show()
@@ -99,17 +104,25 @@ def main():
     
     #MTF stacked histogram
     def mtf_stacked_histogram(col_names, v7685_index, v7302_index):
-        
+        #Set subplot size and resolution
         f, ax = plt.subplots(figsize = (12, 9), dpi = 300)
         
+        #Set colors for hues in histogram
         colors = {1:'#38AFC9', 2:'#C4D0D7' ,3:'#081A40'}
         
+        #Create histogram
         sns.histplot(data = mtf_dataset, stat = "count", multiple = "stack", element = "bars", legend = True, kde = False, bins = 7, palette = colors, hue = mtf_dataset.V7302, x = mtf_dataset.V7685)
         
+        #Set x lable + xtick distances & lables
         ax.set(xlabel = col_names[1], xticks = ([1.4, 2.3, 3.15, 4, 4.8, 5.7, 6.6]), xticklabels = v7685_index)
         
+        #Set hue question name and lables
         ax.legend(title = col_names[0],labels = v7302_index)
         
+        plt.setp(ax.get_legend().get_texts(), fontsize='16') 
+        plt.setp(ax.get_legend().get_title(), fontsize='18')
+        
+        #plot histogram to subplot
         ax.plot()
         plt.show()
     
@@ -131,13 +144,16 @@ def main():
     #Misc functions
     
     def yrbs_chi_squared_test(q80_index): # semi working produces output values
-       yrx_data = pd.crosstab(yrbs_dataset['q25'], yrbs_dataset['q80']).T
+        #transform data for scipy.stats function   
+        yrx_data = pd.crosstab(yrbs_dataset['q25'], yrbs_dataset['q80']).T
        
-       c, p, dof, expected = sp.chi2_contingency(yrx_data)
+        #scipy.stats - chi2 squared function
+        c, p, dof, expected = sp.chi2_contingency(yrx_data)
        
-       print('P-value: ', p)
-       print('Test Statistic: ', c)
-       print('Degrees of freedom: ', dof)
+        #Print results
+        print('P-value: ', p)
+        print('Test Statistic: ', c)
+        print('Degrees of freedom: ', dof)
        
        
 
@@ -149,6 +165,7 @@ def main():
         #scipy.stats - chi2 squared function
         c, p, dof, expected = sp.chi2_contingency(mtf_data)
         
+        #Print results
         print('P-value: ', p)
         print('Test Statistic: ', c)
         print('Degrees of freedom: ', dof)
